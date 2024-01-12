@@ -1,0 +1,35 @@
+@api = http://localhost:3000
+
+GET {{api}}/users
+
+###
+
+
+POST {{api}}/login
+Content-Type: application/json
+
+###
+
+POST {{api}}/logout
+Authorization: Bearer {{}}
+
+
+###
+
+POST {{api}}/users
+Content-Type: application/json
+
+###
+
+GET {{api}}/users/7
+
+
+###
+
+DELETE {{api}}/users/3
+
+
+###
+
+PUT {{api}}/users/7
+Content-Type: application/json
