@@ -1,0 +1,26 @@
+# Node.js
+node_modules/
+
+# Logs y archivos temporales
+logs/
+*.log
+npm-debug.log*
+
+# Configuración específica del entorno
+.env
+
+# Archivos generados en el proceso de construcción
+dist/
+build/
+
+# Dependiendo de tu editor de código, puedes agregar configuraciones de archivos
+.vscode/
+.idea/
+
+# Dependiendo de tus herramientas de desarrollo, puedes agregar más entradas aquí
+
+# dotenv
+.env.local
+.env.development
+.env.test
+.env.production
