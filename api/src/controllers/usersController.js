@@ -3,15 +3,17 @@ import querys from "../database/querys";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import mssql from "mssql";
+import { secret } from "../middlewares/validateToken";
 
-const secret = process.env.JWT_SECRET;
 const invalidatedTokens = [];
+
+export const invalidateToken = (token) => {
+  invalidatedTokens.push(token);
+};
 
 export default {
   invalidatedTokens,
-  invalidateToken: (token) => {
-    invalidatedTokens.push(token);
-  },
+  invalidateToken,
 };
 
 export const getUsers = async (req, res) => {
@@ -36,9 +38,9 @@ export const login = async (req, res) => {
   try {
     pool = await getConnection();
     const result = await pool
-    .request()
-    .input("usuario", mssql.VarChar, usuario)
-    .query(querys.loginUser);
+      .request()
+      .input("usuario", mssql.VarChar, usuario)
+      .query(querys.loginUser);
     const user = result.recordset[0];
 
     if (!user) {
@@ -50,14 +52,17 @@ export const login = async (req, res) => {
       const payload = {
         userId: user.id,
       };
+
       const token = jwt.sign(payload, secret, {
         algorithm: "HS256",
       });
+
       res.status(201).json({ message: "Acceso conseguido", token });
     } else {
       res.status(401).json({ message: "Usuario o contraseña incorrecta" });
     }
   } catch (error) {
+    console.error("Error en la función login:", error);
     res.status(500).send(error.message);
   } finally {
     await closeConnection(pool);
