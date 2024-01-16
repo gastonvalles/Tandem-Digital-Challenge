@@ -1,36 +1,50 @@
-const { getConnection, mssql } = require("../database/conection");
-const querys = require("../database/querys");
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
-const secret = process.env.secret;
+import { getConnection, closeConnection } from "../database/connection";
+import querys from "../database/querys";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import mssql from "mssql";
 
-module.exports.getUsers = async (req, res) => {
+const secret = process.env.JWT_SECRET;
+const invalidatedTokens = [];
+
+export default {
+  invalidatedTokens,
+  invalidateToken: (token) => {
+    invalidatedTokens.push(token);
+  },
+};
+
+export const getUsers = async (req, res) => {
+  let pool;
   try {
-    const pool = await getConnection();
+    pool = await getConnection();
     const result = await pool.request().query(querys.getAllUsers);
     for (let i = 0; i < result.recordset.length; i++) {
       result.recordset[i].contraseña = "";
     }
     res.json(result.recordset);
   } catch (error) {
-    res.status(500);
-    res.send(error.message);
+    res.status(500).send("Error:", error.message);
+  } finally {
+    await closeConnection(pool);
   }
 };
 
-module.exports.login = async (req, res) => {
+export const login = async (req, res) => {
   const { usuario, contraseña } = req.body;
+  let pool;
   try {
-    const pool = await getConnection();
+    pool = await getConnection();
     const result = await pool
-      .request()
-      .input("usuario", mssql.VarChar, usuario)
-      .query(querys.loginUser);
+    .request()
+    .input("usuario", mssql.VarChar, usuario)
+    .query(querys.loginUser);
     const user = result.recordset[0];
 
     if (!user) {
       return res.status(400).json({ message: "No se encontró el usuario" });
     }
+
     const passwordMatch = await bcrypt.compare(contraseña, user.contraseña);
     if (passwordMatch) {
       const payload = {
@@ -45,35 +59,31 @@ module.exports.login = async (req, res) => {
     }
   } catch (error) {
     res.status(500).send(error.message);
+  } finally {
+    await closeConnection(pool);
   }
 };
 
-const invalidatedTokens = [];
-function invalidateToken(token) {
-  invalidatedTokens.push(token);
-}
-
-module.exports.logout = async (req, res) => {
+export const logout = async (req, res) => {
   try {
     const token = req.headers.authorization.split(" ")[1];
-
     invalidateToken(token);
-
     res.status(200).json({ message: "Sesión cerrada exitosamente" });
   } catch (error) {
     res.status(500).send(error.message);
   }
 };
 
-module.exports.createUsers = async (req, res) => {
+export const createUsers = async (req, res) => {
   const { nombre, apellido, email, telefono, usuario, contraseña } = req.body;
   if (!nombre || !apellido || !email || !telefono || !usuario || !contraseña) {
     return res.status(400).json({ msg: "Por favor llene todos los campos" });
   }
+  let pool;
   try {
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(contraseña, saltRounds);
-    const pool = await getConnection();
+    pool = await getConnection();
     await pool
       .request()
       .input("nombre", mssql.VarChar, nombre)
@@ -85,36 +95,49 @@ module.exports.createUsers = async (req, res) => {
       .query(querys.createNewUser);
     res.json({ nombre, apellido, email, telefono, usuario });
   } catch (error) {
-    res.status(500);
-    res.send(error.message);
+    res.status(500).send(error.message);
+  } finally {
+    await closeConnection(pool);
   }
 };
 
-module.exports.getUserById = async (req, res) => {
+export const getUserById = async (req, res) => {
   const { id } = req.params;
-  const pool = await getConnection();
-  const result = await pool.request().input("id", id).query(querys.getUserById);
-
-  res.send(result.recordset[0]);
+  let pool;
+  try {
+    pool = await getConnection();
+    const result = await pool
+      .request()
+      .input("id", id)
+      .query(querys.getUserById);
+    res.send(result.recordset[0]);
+  } catch (error) {
+    res.status(500).send(error.message);
+  } finally {
+    await closeConnection(pool);
+  }
 };
 
-module.exports.deleteUserById = async (req, res) => {
+export const deleteUserById = async (req, res) => {
   const { id } = req.params;
-
-  const pool = await getConnection();
-  const result = await pool
-    .request()
-    .input("id", id)
-    .query(querys.deleteUserById);
-
-  res.sendStatus(204);
+  let pool;
+  try {
+    pool = await getConnection();
+    await pool.request().input("id", id).query(querys.deleteUserById);
+    res.sendStatus(204);
+  } catch (error) {
+    res.status(500).send(error.message);
+  } finally {
+    await closeConnection(pool);
+  }
 };
 
-module.exports.updateUserById = async (req, res) => {
+export const updateUserById = async (req, res) => {
   const { nombre, apellido, email, telefono, usuario, contraseña, id } =
     req.body;
+  let pool;
   try {
-    const pool = await getConnection();
+    pool = await getConnection();
     const result = await pool
       .request()
       .input("id", mssql.Int, id)
@@ -151,7 +174,8 @@ module.exports.updateUserById = async (req, res) => {
       res.json({ nombre, apellido, email, telefono, usuario });
     }
   } catch (error) {
-    res.status(500);
-    res.send(error.message);
+    res.status(500).send(error.message);
+  } finally {
+    await closeConnection(pool);
   }
 };

@@ -1,9 +1,9 @@
-const dotenv = require("dotenv");
+import { config } from "dotenv";
 
-dotenv.config();
+config();
 
-module.exports = {
-  port: parseInt(process.env.PORT, 10) || 4000,
+export default {
+  port: process.env.PORT,
   dbUser: process.env.DB_USER,
   dbPassword: process.env.DB_PASSWORD,
   dbServer: process.env.DB_SERVER,

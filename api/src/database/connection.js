@@ -1,5 +1,5 @@
-const mssql = require("mssql");
-const config = require("../config");
+import mssql from "mssql";
+import config from "../config";
 
 const dbSetting = {
   user: config.dbUser,
@@ -12,13 +12,21 @@ const dbSetting = {
   },
 };
 
-async function getConnection() {
+export async function getConnection() {
   try {
     const pool = await mssql.connect(dbSetting);
     return pool;
   } catch (error) {
-    console.log(error);
+    console.error(error);
   }
 }
 
-module.exports = { getConnection, mssql };
+export async function closeConnection(pool) {
+  try {
+    if (pool) {
+      await pool.close();
+    }
+  } catch (error) {
+    console.error(error);
+  }
+}

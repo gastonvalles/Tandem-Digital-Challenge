@@ -1,26 +1,27 @@
-const express = require("express");
-const { body, validationResult } = require("express-validator");
-
-const usersController = require("../controllers/usersController");
-const { userExist, userUpdate } = require("../middlewares/userExist");
-const { validateToken } = require("../middlewares/validateToken");
-
-const getUsers = usersController.getUsers;
-const createUsers = usersController.createUsers;
-const getUserById = usersController.getUserById;
-const deleteUserById = usersController.deleteUserById;
-const updateUserById = usersController.updateUserById;
-const login = usersController.login;
-const logout = usersController.logout;
+import express from "express";
+import { body, validationResult } from "express-validator";
+import { userExist, userUpdate } from "../middlewares/userExist";
+import { validateToken } from "../middlewares/validateToken";
+import {
+  getUsers,
+  createUsers,
+  getUserById,
+  deleteUserById,
+  updateUserById,
+  login,
+  logout,
+} from "../controllers/usersController";
 
 const router = express.Router();
 
 router.get("/users", [validateToken], getUsers);
+
 router.post("/login", login);
 
 router.post("/logout", logout, (req, res) => {
   res.redirect("/login");
 });
+
 router.post(
   "/users",
   [
@@ -41,8 +42,11 @@ router.post(
   ],
   createUsers
 );
+
 router.get("/users/:id", getUserById);
+
 router.delete("/users/:id", deleteUserById);
+
 router.put(
   "/users/:id",
   [
@@ -64,4 +68,4 @@ router.put(
   updateUserById
 );
 
-module.exports = router;
+export default router;
