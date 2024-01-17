@@ -15,11 +15,11 @@ import {
 
 const router = express.Router();
 
-router.get("/users", [validateToken], getUsers);
+router.get("/users", validateToken, getUsers);
 
 router.post("/login", login);
 
-router.post("/logout", logout, (req, res) => {
+router.post("/logout", validateToken, logout, (req, res) => {
   res.redirect("/login");
 });
 
@@ -32,24 +32,26 @@ router.post(
     body("telefono").isMobilePhone("any"),
     body("usuario").isString(),
     body("contraseña").isString(),
-    (req, res, next) => {
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        return res.status(422).json({ errors: errors.array() });
-      }
-      return next();
-    },
-    userExist,
   ],
+  validateToken,
+  userExist,
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).json({ errors: errors.array() });
+    }
+    next();
+  },
   createUsers
 );
 
-router.get("/users/:id", getUserById);
+router.get("/users/:id", validateToken, getUserById);
 
-router.delete("/users/:id", deleteUserById);
+router.delete("/users/:id", validateToken, deleteUserById);
 
 router.put(
   "/users/:id",
+  validateToken,
   [
     body("nombre").isString().optional({ nullable: true }),
     body("apellido").isString().optional({ nullable: true }),
@@ -57,18 +59,19 @@ router.put(
     body("telefono").isMobilePhone("any").optional({ nullable: true }),
     body("usuario").isString().optional({ nullable: true }),
     body("contraseña").isString().optional({ nullable: true }),
-    (req, res, next) => {
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        return res.status(422).json({ errors: errors.array() });
-      }
-      return next();
-    },
-    userUpdate,
   ],
+  validateToken,
+  userUpdate,
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).json({ errors: errors.array() });
+    }
+    next();
+  },
   updateUserById
 );
 
-router.post("/refresh-token", refreshAccessToken);
+router.post("/refresh-token", validateToken, refreshAccessToken);
 
 export default router;
