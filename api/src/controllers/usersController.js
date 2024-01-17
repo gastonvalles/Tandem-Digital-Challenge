@@ -55,6 +55,7 @@ export const login = async (req, res) => {
 
       const token = jwt.sign(payload, secret, {
         algorithm: "HS256",
+        expiresIn: "1h",
       });
 
       res.status(201).json({ message: "Acceso conseguido", token });

@@ -6,18 +6,24 @@ export const validateToken = (req, res, next) => {
   const token = authHeader && authHeader.split(" ")[1];
 
   try {
-    console.log("Verifying Token:", token);
-    const payload = jwt.verify(token, secret, { algorithms: ["HS256"] });
-    console.log("Token verificado. Payload:", payload);
+    const payload = jwt.verify(token, secret, {
+      ignoreExpiration: true,
+      algorithms: ["HS256"],
+    });
+
+    const currentTimestamp = Math.floor(Date.now() / 1000);
+
+    if (payload.exp < currentTimestamp) {
+      return res.status(401).json({
+        message: "Token has expired",
+      });
+    }
+
     req.user = payload;
     next();
   } catch (error) {
     console.error("Token Verification Error:", error);
-    if (error.name === "TokenExpiredError") {
-      return res.status(401).json({
-        message: "Token has expired",
-      });
-    } else if (error.name === "JsonWebTokenError") {
+    if (error.name === "JsonWebTokenError") {
       return res.status(401).json({
         message: "Invalid token",
       });
