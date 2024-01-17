@@ -3,7 +3,25 @@ import querys from "../database/querys";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import mssql from "mssql";
-import { secret } from "../middlewares/validateToken";
+import { secret, refreshSecret } from "../middlewares/validateToken";
+
+export const refreshAccessToken = async (req, res) => {
+  const refreshToken = req.body.refreshToken;
+
+  try {
+    const decoded = jwt.verify(refreshToken, refreshSecret);
+
+    const newAccessToken = jwt.sign({ userId: decoded.userId }, secret, {
+      algorithm: "HS256",
+      expiresIn: "1h",
+    });
+
+    res.json({ newAccessToken: newAccessToken });
+  } catch (error) {
+    console.error("Error en la renovación del token:", error);
+    res.status(401).json({ message: "Invalid Refresh Token" });
+  }
+};
 
 const invalidatedTokens = [];
 
@@ -48,17 +66,24 @@ export const login = async (req, res) => {
     }
 
     const passwordMatch = await bcrypt.compare(contraseña, user.contraseña);
+
     if (passwordMatch) {
       const payload = {
         userId: user.id,
       };
 
-      const token = jwt.sign(payload, secret, {
+      const accessToken = jwt.sign(payload, secret, {
         algorithm: "HS256",
+        expiresIn: "15s",
+      });
+
+      const refreshToken = jwt.sign(payload, refreshSecret, {
         expiresIn: "1h",
       });
 
-      res.status(201).json({ message: "Acceso conseguido", token });
+      res
+        .status(201)
+        .json({ message: "Acceso conseguido", accessToken, refreshToken });
     } else {
       res.status(401).json({ message: "Usuario o contraseña incorrecta" });
     }

@@ -10,11 +10,8 @@ import {
   updateUserById,
   login,
   logout,
-} from "../controllers/usersController";
-import {
-  createRefreshToken,
   refreshAccessToken,
-} from "../controllers/refreshTokenController";
+} from "../controllers/usersController";
 
 const router = express.Router();
 
@@ -72,8 +69,6 @@ router.put(
   updateUserById
 );
 
-router.post("/refresh-token", createRefreshToken);
-
-router.post("/refresh-access-token", refreshAccessToken);
+router.post("/refresh-token", refreshAccessToken);
 
 export default router;
