@@ -72,6 +72,6 @@ router.put(
   updateUserById
 );
 
-router.post("/refresh-token", validateToken, refreshAccessToken);
+router.post("/refresh-token", refreshAccessToken);
 
 export default router;
