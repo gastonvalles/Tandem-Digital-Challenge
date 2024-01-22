@@ -5,6 +5,7 @@ import jwt from "jsonwebtoken";
 import mssql from "mssql";
 import { secret, refreshSecret } from "../middlewares/validateToken";
 
+// Función para renovar el token de acceso.
 export const refreshAccessToken = async (req, res) => {
   const refreshToken = req.body.refreshToken;
 
@@ -23,17 +24,21 @@ export const refreshAccessToken = async (req, res) => {
   }
 };
 
+// Lista de tokens invalidados.
 const invalidatedTokens = [];
 
+// Función para invalidar un token.
 export const invalidateToken = (token) => {
   invalidatedTokens.push(token);
 };
 
+// Exporta la lista de tokens invalidados y la función para invalidar un token.
 export default {
   invalidatedTokens,
   invalidateToken,
 };
 
+// Función para obtener todos los usuarios.
 export const getUsers = async (req, res) => {
   let pool;
   try {
@@ -50,6 +55,7 @@ export const getUsers = async (req, res) => {
   }
 };
 
+// Función para iniciar sesión.
 export const login = async (req, res) => {
   const { usuario, contraseña } = req.body;
   let pool;
@@ -74,11 +80,11 @@ export const login = async (req, res) => {
 
       const accessToken = jwt.sign(payload, secret, {
         algorithm: "HS256",
-        expiresIn: "15s",
+        expiresIn: "25s",
       });
 
       const refreshToken = jwt.sign(payload, refreshSecret, {
-        expiresIn: "1h",
+        expiresIn: "2h",
       });
 
       res
@@ -95,6 +101,7 @@ export const login = async (req, res) => {
   }
 };
 
+// Función para cerrar sesión.
 export const logout = async (req, res) => {
   try {
     const token = req.headers.authorization.split(" ")[1];
@@ -105,6 +112,7 @@ export const logout = async (req, res) => {
   }
 };
 
+// Función para crear usuarios.
 export const createUsers = async (req, res) => {
   const { nombre, apellido, email, telefono, usuario, contraseña } = req.body;
   if (!nombre || !apellido || !email || !telefono || !usuario || !contraseña) {
@@ -132,6 +140,7 @@ export const createUsers = async (req, res) => {
   }
 };
 
+// Función para obtener un usuario por ID.
 export const getUserById = async (req, res) => {
   const { id } = req.params;
   let pool;
@@ -149,6 +158,7 @@ export const getUserById = async (req, res) => {
   }
 };
 
+// Función para eliminar un usuario por ID.
 export const deleteUserById = async (req, res) => {
   const { id } = req.params;
   let pool;
@@ -163,6 +173,7 @@ export const deleteUserById = async (req, res) => {
   }
 };
 
+// Función para actualizar un usuario por ID.
 export const updateUserById = async (req, res) => {
   const { nombre, apellido, email, telefono, usuario, contraseña, id } =
     req.body;

@@ -1,15 +1,19 @@
+<!-- Formulario para registrar un nuevo usuario -->
 <template>
     <v-container class="fill-height" fluid>
         <v-row class="fill-height" justify="center" align="center">
             <v-col cols="12" md="8">
                 <div class="container">
+                    <!-- Logo de la aplicación -->
                     <v-img src="/Tandem.png" alt="Tandem Logo" class="logo" />
+                    <!-- Formulario para registrar un nuevo usuario -->
                     <v-form @submit.prevent="register" class="form" v-model="valid" lazy-validation>
                         <v-row>
                             <v-col>
-                                <v-subheader class="form-title">Creá tu cuenta en Tándem Digital</v-subheader>
+                                <h2 class="form-title">Creá tu cuenta en Tándem Digital</h2>
                             </v-col>
                         </v-row>
+                        <!-- Campos para el nombre, apellido, email, teléfono, usuario y contraseña -->
                         <v-row>
                             <v-col>
                                 <v-text-field v-model="usuario.nombre" label="Nombre" required />
@@ -24,20 +28,26 @@
                         </v-row>
                         <v-row>
                             <v-col>
+                                <!-- Botón para volver atrás -->
                                 <v-btn @click="goBack" class="goBack">
                                     <v-icon right>mdi-arrow-left</v-icon>
                                     Volver
                                 </v-btn>
                             </v-col>
                             <v-col>
-                                <v-btn type="submit" class="submit">Registrarse</v-btn>
+                                <!-- Botón para enviar el formulario -->
+                                <v-btn type="submit" class="submit">
+                                    Registrarse
+                                    <v-icon right>mdi-arrow-right</v-icon>
+                                </v-btn>
                             </v-col>
                         </v-row>
+                        <!-- Componente de alerta para mostrar mensajes de error -->
+                        <v-alert v-if="registroExitoso" type="success" style="position: fixed; top: 20px; right: 20px">
+                            Usuario creado exitosamente
+                        </v-alert>
+                        <AlertMessage :errorMessage="errorMensaje" v-if="errorMensaje" />
                     </v-form>
-                    <v-alert v-if="registroExitoso" type="success" style="position: fixed; top: 20px; right: 20px">
-                        Usuario creado exitosamente
-                    </v-alert>
-                    <AlertMessage :errorMessage="errorMensaje" v-if="errorMensaje" />
                 </div>
             </v-col>
         </v-row>
@@ -45,30 +55,34 @@
 </template>
 
 <script>
-import axios from 'axios';
-import AlertMessage from "./AlertMessage.vue";
+// Importa la función useApi del módulo HTTPrequest.js
+import useApi from '../util/HTTPrequest.js';
+import AlertMessage from './AlertMessage.vue';
 
 export default {
+    // Datos locales del componente
     data() {
         return {
             usuario: {
-                nombre: '',
-                apellido: '',
-                email: '',
-                telefono: '',
-                usuario: '',
-                contraseña: '',
-                confirmarContraseña: '',
+                nombre: "",
+                apellido: "",
+                email: "",
+                telefono: "",
+                usuario: "",
+                contraseña: "",
+                confirmarContraseña: "",
             },
             registroExitoso: false,
-            errorMensaje: '',
+            errorMensaje: "",
             emailRules: [
                 v => !!v || 'E-mail requerido',
                 v => /.+@.+\..+/.test(v) || 'El E-mail debe ser valido',
             ],
         };
     },
+    // Métodos del componente
     methods: {
+        // Función para manejar el registro de un nuevo usuario
         async register() {
             if (this.usuario.contraseña !== this.usuario.confirmarContraseña) {
                 this.mostrarError('Las contraseñas no coinciden');
@@ -80,33 +94,48 @@ export default {
                 return;
             }
 
-            if (!this.$v.email.$pending && !this.$v.email.email) {
+            if (!this.$v.usuario.email.$pending && !this.$v.usuario.email.email) {
                 this.mostrarError('El correo ingresado es inválido');
                 return;
             }
 
             try {
-                await axios.post('http://localhost:3000/register', this.usuario);
+                // Obtiene la función post de la API utilizando useApi
+                const { post } = useApi();
+                // Realiza una solicitud POST para registrar un nuevo usuario
+                const response = await post("/register", this.usuario);
 
-                this.registroExitoso = true;
+                // Verifica el estado de la respuesta
+                if (response.status === 201) {
+                    // Redirige al usuario a la página de inicio de sesión
+                    this.registroExitoso = true;
 
-                this.ocultarAlertaRegistro();
+                    this.ocultarAlertaRegistro();
 
-                setTimeout(() => {
-                    this.$router.push('/login');
-                }, 4000);
-
+                    setTimeout(() => {
+                        this.$router.push("/login");
+                    }, 4000);
+                } else {
+                    // Muestra un mensaje de error si hay un problema con el registro
+                    this.mostrarError("Error al registrar el usuario.");
+                }
             } catch (error) {
-                this.mostrarError(error.response?.data || 'Error durante el registro');
-                console.error('Error al registrar usuario:', error);
+                // Manejo de errores, muestra mensajes de error según la respuesta
+                if (error.response && error.response.status === 409) {
+                    this.mostrarError("El nombre de usuario o el correo electrónico ya están en uso.");
+                } else {
+                    this.mostrarError("Error al registrar el usuario.");
+                }
             }
         },
+        // Función para mostrar mensajes de error y ocultarlos después de un tiempo
         mostrarError(mensaje) {
             this.errorMensaje = mensaje;
             setTimeout(() => {
-                this.errorMensaje = '';
+                this.errorMensaje = "";
             }, 4000);
         },
+        // Función para volver atrás en la navegación
         goBack() {
             this.$router.go(-1);
         },
@@ -114,14 +143,15 @@ export default {
             setTimeout(() => {
                 this.registroExitoso = false;
             }, 4000);
-        },
+        }
     },
     components: {
         AlertMessage,
-    },
+    }
 };
 </script>
 
+<!-- Estilos específicos del componente -->
 <style scoped>
 .container {
     display: flex;
@@ -163,6 +193,8 @@ export default {
 }
 
 .goBack {
-    color: #1a73e8;
+    color: #6b7280;
+    width: 100%;
+    text-transform: uppercase;
 }
 </style>

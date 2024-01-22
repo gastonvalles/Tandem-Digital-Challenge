@@ -12,6 +12,7 @@ const dbSetting = {
   },
 };
 
+// Función para obtener una conexión a la base de datos.
 export async function getConnection() {
   try {
     const pool = await mssql.connect(dbSetting);
@@ -21,6 +22,7 @@ export async function getConnection() {
   }
 }
 
+// Función para cerrar una conexión a la base de datos.
 export async function closeConnection(pool) {
   try {
     if (pool) {

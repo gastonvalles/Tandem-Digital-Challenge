@@ -1,3 +1,4 @@
+// Exporta un objeto con consultas SQL.
 export default {
   getAllUsers: "SELECT * FROM Users",
   createNewUser:
