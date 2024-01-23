@@ -52,17 +52,10 @@
 </template>
 
 <script>
-// Importa axios y el componente UserDialog
 import axios from 'axios';
-import UserDialog from './UserDialog.vue';
-// Importa la función useApi del módulo HTTPrequest.js
 import useApi from '../util/HTTPrequest.js';
 
 export default {
-    // Componentes utilizados
-    components: {
-        UserDialog,
-    },
     // Datos locales del componente
     data: () => ({
         search: '', // Término de búsqueda
@@ -111,7 +104,7 @@ export default {
     // Métodos del componente
     methods: {
         // Función para obtener la lista de usuarios desde el servidor
-        async fetchUsuarios() {
+        async getUsers() {
             const { get } = useApi();
 
             try {
@@ -124,7 +117,7 @@ export default {
 
         // Inicializa la lista de usuarios
         async initialize() {
-            this.users = await this.fetchUsuarios();
+            this.users = await this.getUsers();
         },
 
         // Edita un usuario
@@ -149,8 +142,6 @@ export default {
         async deleteUser(item) {
             const { del } = useApi();
             try {
-                const accessToken = sessionStorage.getItem('accessToken');
-                console.log('Token de acceso:', accessToken);
                 await del(`http://localhost:3000/users/${item.id}`, {
                     headers: {
                         Authorization: `Bearer ${sessionStorage.getItem('accessToken')}`,
@@ -240,10 +231,10 @@ export default {
             try {
                 await axios.post('http://localhost:3000/logout', null, {
                     headers: {
-                        Authorization: sessionStorage.getItem('token'),
+                        Authorization: `Bearer ${sessionStorage.getItem('accessToken')}`,
                     },
                 });
-                sessionStorage.removeItem('token');
+                sessionStorage.removeItem('accessToken');
                 // Redirige al usuario a la página de inicio
                 this.$router.push('/');
             } catch (error) {

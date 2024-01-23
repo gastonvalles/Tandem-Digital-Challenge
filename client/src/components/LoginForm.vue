@@ -37,7 +37,12 @@
               </v-col>
             </v-row>
           </v-form>
-          <AlertMessage :errorMessage="errorMensaje" v-if="errorMensaje" />
+          <!-- Contenedor para mostrar mensajes de error -->
+          <div class="error-alert-container">
+            <v-alert v-if="errorMensaje" type="error">
+              {{ errorMensaje }}
+            </v-alert>
+          </div>
         </div>
       </v-col>
     </v-row>
@@ -58,7 +63,7 @@ export default {
   methods: {
     async login() {
       try {
-        const { post, updateToken, setTokens } = useApi();
+        const { post, setTokens } = useApi();
         const response = await post("/login", {
           usuario: this.usuario,
           contraseña: this.contraseña,
@@ -67,11 +72,7 @@ export default {
         if (response.status === 201) {
           const { accessToken, refreshToken } = response.data;
           setTokens(accessToken, refreshToken);
-
-          setTimeout(() => {
-            updateToken();
-            this.$router.replace("/users");
-          }, 100);
+          this.$router.replace("/users");
         } else {
           this.mostrarError("Credenciales incorrectas.");
         }
@@ -79,7 +80,7 @@ export default {
         if (error.response && error.response.status === 401) {
           this.mostrarError("Credenciales incorrectas.");
         } else {
-          this.mostrarError("Error al iniciar sesión");
+          this.mostrarError("Error al iniciar sesión. Intenta de nuevo.");
         }
       }
     },
@@ -143,5 +144,13 @@ export default {
 
 .signup-link a {
   text-decoration: underline;
+}
+
+.error-alert-container {
+    position: fixed;
+    top: 0;
+    right: 0;
+    margin-top: 20px;
+    margin-right: 20px;
 }
 </style>

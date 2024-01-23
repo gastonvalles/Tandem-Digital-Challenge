@@ -1,6 +1,7 @@
 import { reactive, toRefs } from "vue";
 import axios from "axios";
 
+// Define state fuera de la función updateToken
 const state = reactive({
   accessToken: null,
   refreshToken: null,
@@ -38,16 +39,40 @@ const updateToken = async () => {
     });
     const { newAccessToken } = response.data;
     state.accessToken = newAccessToken;
+    return newAccessToken;
   } catch (refreshError) {
     console.error("Error refreshing token", refreshError);
+    throw refreshError;
   }
 };
 
-const useApi = () => {
-  initializeTokens();
+// Agrega un interceptor de respuesta para manejar automáticamente la actualización del token
+api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config;
+    // Si la solicitud falla debido a un token caducado, intenta actualizar el token y vuelve a intentar la solicitud original.
+    if (error.response.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+      try {
+        const newAccessToken = await updateToken();
+        originalRequest.headers["Authorization"] = `Bearer ${newAccessToken}`;
+        return api(originalRequest);
+      } catch (refreshError) {
+        // Si la actualización del token también falla, redirige al usuario a la página de inicio de sesión o realiza alguna otra acción.
+        console.error("Error refreshing token", refreshError);
+        throw refreshError;
+      }
+    }
+    return Promise.reject(error);
+  }
+);
 
-  const get = async () => {
-    const response = await api.get("http://localhost:3000/users", {
+const useApi = () => {
+  initializeTokens(); // Inicializa los tokens
+
+  const get = async (url) => {
+    const response = await api.get(url, {
       headers: {
         Authorization: `Bearer ${state.accessToken}`,
       },
@@ -61,7 +86,15 @@ const useApi = () => {
     return response;
   };
 
-  const put = (url, data) => api.put(url, data);
+  const put = async (url, data) => {
+    const response = await api.put(url, data, {
+      headers: {
+        Authorization: `Bearer ${state.accessToken}`,
+      },
+    });
+
+    return response;
+  };
 
   const del = (url) => api.delete(url);
 
