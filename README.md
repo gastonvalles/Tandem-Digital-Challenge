@@ -1,4 +1,5 @@
 # Tándem Digital Challenge
+![Tandem logo](./client/public/Tandem.png)
 
 ## Objetivo:
 El propósito de esta prueba es evaluar la capacidad del desarrollador para diseñar y desarrollar una aplicación web completa utilizando Vue.js y Vuetify en el Front-end, Node.js en el Back-end y SQL Server como base de datos.
@@ -20,11 +21,19 @@ Una vez que hayas descargado o clonado el proyecto en tu PC, sigue estos pasos p
     npm install
     ```
 
-3. Inicia sesión en SQL Server Management Studio mediante SQL Server Authentication. A continuación, crea una base de datos llamada "Tandem" y dentro de ella, una tabla llamada "Users" con los campos id, nombre, apellido, telefono, email, usuario y contraseña.
+3. Inicia sesión en SQL Server Management Studio mediante SQL Server Authentication
 
-   (Adjunta capturas de pantalla para estos pasos, si es necesario)
+    ![sqlauth](./client/public/1.png)
 
-4. En la carpeta "api", crea un archivo llamado ".env" con el siguiente contenido:
+4. A continuación, crea una base de datos llamada "Tandem"
+
+    ![database](./client/public/2.png)
+
+5. Y dentro de ella, una tabla llamada "Users" con los campos id, nombre, apellido, telefono, email, usuario y contraseña.
+
+    ![table](./client/public/3.png)
+
+6. En la carpeta "api", crea un archivo llamado ".env" con el siguiente contenido:
 
     ```
     PORT=3000
@@ -36,7 +45,7 @@ Una vez que hayas descargado o clonado el proyecto en tu PC, sigue estos pasos p
     REFRESH_TOKEN_SECRET=cdY45KvQ21Za4GQmbUzgLEVQJNbjtJcjtJPwE4YqMI8
     ```
 
-5. Finalmente, en la consola de tu IDE favorito, ejecuta el siguiente comando en la carpeta "api" para iniciar el servidor:
+7. Finalmente, en la consola de tu IDE favorito, ejecuta el siguiente comando en la carpeta "api" para iniciar el servidor:
 
     ```bash
     cd api/
@@ -50,4 +59,4 @@ Una vez que hayas descargado o clonado el proyecto en tu PC, sigue estos pasos p
     npm run serve
     ```
 
-¡Listo! Tu entorno local está configurado correctamente. Ahora puedes comenzar a trabajar en el Tándem Digital Challenge.
+### ¡Listo! Tu entorno local está configurado correctamente.
