@@ -54,7 +54,7 @@
 </template>
 
 <script>
-import useApi from '../util/HTTPrequest.js';
+import useApi from '../utils/helper.js';
 
 export default {
     // Datos locales del componente
