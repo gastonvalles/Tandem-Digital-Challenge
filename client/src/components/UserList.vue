@@ -4,14 +4,15 @@
             <v-col cols="12" md="12">
                 <div class="container">
                     <v-img src="/Tandem.png" alt="Tandem Logo" class="logo" />
-                    <h2 class="text-center mb-15 v-display-2 font-weight-bold teal--text darken-2 mt-5">Lista de Usuarios
+                    <h2 class="text-center mb-15 v-display-2 font-weight-bold teal--text darken-2 mt-5">
+                        Lista de Usuarios
                     </h2>
                     <v-alert v-if="errorMensaje" type="error" style="position: fixed; top: 20px; right: 20px">
                         {{ errorMensaje }}
                     </v-alert>
                     <v-toolbar flat>
                         <v-row>
-                            <v-col xs="6" md="6" sm="6">
+                            <v-col xs="6" md="6" sm="6" class="text-right">
                                 <v-text-field v-model="search" color="#009688" append-icon="mdi-magnify" label="Search"
                                     single-line hide-details></v-text-field>
                             </v-col>
@@ -202,7 +203,6 @@ export default {
             const { post, put } = useApi();
 
             try {
-                // Validación de campos esenciales
                 if (
                     this.editedItem.usuario.length === 0 ||
                     !this.editedItem.nombre ||
@@ -223,13 +223,10 @@ export default {
                 console.error("Error en la función save de UserList:", error);
 
                 if (error.response) {
-                    // Error de respuesta HTTP, puedes acceder a error.response para obtener más detalles
                     console.error("Respuesta HTTP:", error.response);
                 } else if (error.request) {
-                    // Error de solicitud, puedes acceder a error.request para obtener más detalles
                     console.error("Solicitud HTTP:", error.request);
                 } else {
-                    // Otro tipo de error
                     console.error("Error desconocido:", error.message);
                 }
 
