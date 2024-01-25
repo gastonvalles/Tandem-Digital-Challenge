@@ -20,11 +20,15 @@ Una vez que hayas descargado o clonado el proyecto en tu PC, sigue estos pasos p
     npm install
     ```
 
-3. Inicia sesión en SQL Server Management Studio mediante SQL Server Authentication. A continuación, crea una base de datos llamada "Tandem" y dentro de ella, una tabla llamada "Users" con los campos id, nombre, apellido, telefono, email, usuario y contraseña.
+3. Inicia sesión en SQL Server Management Studio mediante SQL Server Authentication.
+
+![sql auth](https://drive.google.com/file/d/1qenFt3rLZ2fnxHCYorcIYWtBtTKDDUYR/view)
+   
+4.  A continuación, crea una base de datos llamada "Tandem" y dentro de ella, una tabla llamada "Users" con los campos id, nombre, apellido, telefono, email, usuario y contraseña.
 
    (Adjunta capturas de pantalla para estos pasos, si es necesario)
 
-4. En la carpeta "api", crea un archivo llamado ".env" con el siguiente contenido:
+5. En la carpeta "api", crea un archivo llamado ".env" con el siguiente contenido:
 
     ```
     PORT=3000
@@ -36,7 +40,7 @@ Una vez que hayas descargado o clonado el proyecto en tu PC, sigue estos pasos p
     REFRESH_TOKEN_SECRET=cdY45KvQ21Za4GQmbUzgLEVQJNbjtJcjtJPwE4YqMI8
     ```
 
-5. Finalmente, en la consola de tu IDE favorito, ejecuta el siguiente comando en la carpeta "api" para iniciar el servidor:
+6. Finalmente, en la consola de tu IDE favorito, ejecuta el siguiente comando en la carpeta "api" para iniciar el servidor:
 
     ```bash
     cd api/
