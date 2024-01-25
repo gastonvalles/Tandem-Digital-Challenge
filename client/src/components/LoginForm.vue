@@ -63,7 +63,7 @@ export default {
   methods: {
     async login() {
       try {
-        const { post, setTokens } = useApi();
+        const { post, setTokens, updateToken } = useApi();
         const response = await post("/login", {
           usuario: this.usuario,
           contraseña: this.contraseña,
@@ -72,15 +72,21 @@ export default {
         if (response.status === 201) {
           const { accessToken, refreshToken } = response.data;
           setTokens(accessToken, refreshToken);
+          await updateToken();
           this.$router.replace("/users");
         } else {
           this.mostrarError("Credenciales incorrectas.");
         }
       } catch (error) {
-        if (error.response && error.response.status === 401) {
-          this.mostrarError("Credenciales incorrectas.");
-        } else {
-          this.mostrarError("Error al iniciar sesión. Intenta de nuevo.");
+        if (error.response) {
+          const statusCode = error.response.status;
+          if (statusCode === 401) {
+            this.mostrarError("Credenciales inválidas.");
+          } else if (statusCode === 400) {
+            this.mostrarError("Usuario o contraseña inválido. Intenta nuevamente.");
+          } else {
+            this.mostrarError("Error al iniciar sesión. Intenta de nuevo.");
+          }
         }
       }
     },
@@ -147,10 +153,10 @@ export default {
 }
 
 .error-alert-container {
-    position: fixed;
-    top: 0;
-    right: 0;
-    margin-top: 20px;
-    margin-right: 20px;
+  position: fixed;
+  top: 0;
+  right: 0;
+  margin-top: 20px;
+  margin-right: 20px;
 }
 </style>

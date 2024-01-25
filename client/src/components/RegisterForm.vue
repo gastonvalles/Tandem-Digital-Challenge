@@ -81,8 +81,6 @@ export default {
     methods: {
         // Función para manejar el registro de un nuevo usuario
         async register() {
-            console.log('Usuario antes de validar:', this.usuario);
-
             if (this.usuario.contraseña !== this.usuario.confirmarContraseña) {
                 this.mostrarError('Las contraseñas no coinciden');
                 return;
@@ -101,15 +99,15 @@ export default {
                 const response = await post("/users", this.usuario);
 
                 // Verifica el estado de la respuesta
-                if (response.status === 201) {
+                if (response.status === 200) {
                     this.registroExitoso = true;
 
                     this.ocultarAlertaRegistro();
 
                     // Redirige al usuario a la página de inicio de sesión
                     setTimeout(() => {
-                        this.$router.push("/login");
-                    }, 4000);
+                        this.$router.push("/");
+                    }, 2000);
                 } else {
                     // Muestra un mensaje de error si hay un problema con el registro
                     this.mostrarError("Error al registrar el usuario.");

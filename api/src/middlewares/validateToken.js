@@ -24,7 +24,7 @@ export const validateToken = (req, res, next) => {
     // Almacena la información del usuario en la solicitud.
     req.user = payload;
     // Llama al siguiente middleware.
-    next();
+    return next();
   } catch (error) {
     // Manejo de errores según el tipo de error.
     if (error.name === "JsonWebTokenError") {

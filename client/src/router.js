@@ -1,6 +1,6 @@
 import { createRouter, createWebHashHistory } from "vue-router";
 import LoginForm from "./components/LoginForm.vue";
-import UserForm from "./components/UserForm.vue";
+import RegisterForm from "./components/RegisterForm.vue";
 import UserList from "./components/UserList.vue";
 
 const routes = [
@@ -17,7 +17,7 @@ const routes = [
   {
     path: "/register",
     name: "Register",
-    component: UserForm,
+    component: RegisterForm,
   },
 ];
 

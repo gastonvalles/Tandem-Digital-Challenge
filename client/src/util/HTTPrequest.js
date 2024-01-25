@@ -15,7 +15,7 @@ const setTokens = (accessToken, refreshToken) => {
   sessionStorage.setItem("refreshToken", refreshToken);
 };
 
-const initializeTokens = () => {
+export const initializeTokens = async () => {
   const storedAccessToken = sessionStorage.getItem("accessToken");
   const storedRefreshToken = sessionStorage.getItem("refreshToken");
 
@@ -32,13 +32,13 @@ const api = axios.create({
   },
 });
 
-const updateToken = async () => {
+export const updateToken = async () => {
   try {
     const response = await api.post("/refresh-token", {
       refreshToken: state.refreshToken,
     });
     const { newAccessToken } = response.data;
-    state.accessToken = newAccessToken;
+    setTokens(newAccessToken, state.refreshToken);
     return newAccessToken;
   } catch (refreshError) {
     console.error("Error refreshing token", refreshError);
@@ -46,57 +46,64 @@ const updateToken = async () => {
   }
 };
 
-// Agrega un interceptor de respuesta para manejar automáticamente la actualización del token
-api.interceptors.response.use(
-  (response) => response,
-  async (error) => {
-    const originalRequest = error.config;
-    // Si la solicitud falla debido a un token caducado, intenta actualizar el token y vuelve a intentar la solicitud original.
-    if (error.response.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true;
-      try {
-        const newAccessToken = await updateToken();
-        originalRequest.headers["Authorization"] = `Bearer ${newAccessToken}`;
-        return api(originalRequest);
-      } catch (refreshError) {
-        // Si la actualización del token también falla, redirige al usuario a la página de inicio de sesión o realiza alguna otra acción.
-        console.error("Error refreshing token", refreshError);
-        throw refreshError;
-      }
-    }
-    return Promise.reject(error);
-  }
-);
-
 const useApi = () => {
-  initializeTokens(); // Inicializa los tokens
+  initializeTokens();
 
   const get = async (url) => {
-    const response = await api.get(url, {
-      headers: {
-        Authorization: `Bearer ${state.accessToken}`,
-      },
-    });
-
-    return response;
+    try {
+      const response = await api.get(url, {
+        headers: {
+          Authorization: `Bearer ${state.accessToken}`,
+        },
+      });
+      return response;
+    } catch (error) {
+      console.log("Error en la solicitud GET en useApi:", error);
+      throw error;
+    }
   };
 
   const post = async (url, data) => {
-    const response = await api.post(url, data);
-    return response;
+    try {
+      const response = await api.post(url, data, {
+        headers: {
+          Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+        },
+      });
+      return response;
+    } catch (error) {
+      console.log("Error en la solicitud POST en useApi:", error);
+      throw error;
+    }
   };
 
   const put = async (url, data) => {
-    const response = await api.put(url, data, {
-      headers: {
-        Authorization: `Bearer ${state.accessToken}`,
-      },
-    });
-
-    return response;
+    try {
+      const response = await api.put(url, data, {
+        headers: {
+          Authorization: `Bearer ${state.accessToken}`,
+        },
+      });
+      return response;
+    } catch (error) {
+      console.log("Error en la solicitud PUT en useApi:", error);
+      throw error;
+    }
   };
 
-  const del = (url) => api.delete(url);
+  const del = async (url) => {
+    try {
+      const response = await api.delete(url, {
+        headers: {
+          Authorization: `Bearer ${state.accessToken}`,
+        },
+      });
+      return response;
+    } catch (error) {
+      console.log("Error en la solicitud DEL en useApi:", error);
+      throw error;
+    }
+  };
 
   const { ...reactiveState } = toRefs(state);
 

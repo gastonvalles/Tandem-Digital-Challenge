@@ -1,4 +1,3 @@
-// Importa módulos necesarios de express y express-validator.
 import express from "express";
 import { body, validationResult } from "express-validator";
 import { userExist, userUpdate } from "../middlewares/userExist";
@@ -19,14 +18,15 @@ const router = express.Router();
 
 // Ruta para iniciar sesión.
 router.post("/login", login);
-
 // Ruta para cerrar sesión.
-router.post("/logout", validateToken, logout, (req, res) => {
-  res.redirect("/login");
-});
+router.post("/logout", validateToken, logout);
+// Ruta para obtener un nuevo token de acceso.
+router.post("/refresh-token", refreshAccessToken);
 
 // Ruta para ver todos los usuarios
 router.get("/users", validateToken, getUsers);
+// Ruta para obtener un usuario por ID.
+router.get("/users/:id", validateToken, getUserById);
 
 // Ruta para crear usuarios con validación de datos utilizando express-validator.
 router.post(
@@ -49,12 +49,6 @@ router.post(
   },
   createUsers
 );
-
-// Ruta para obtener un usuario por ID.
-router.get("/users/:id", validateToken, getUserById);
-
-// Ruta para eliminar un usuario por ID.
-router.delete("/users/:id", validateToken, deleteUserById);
 
 // Ruta para actualizar usuarios con validación de datos y verificación de existencia de usuario.
 router.put(
@@ -79,8 +73,8 @@ router.put(
   updateUserById
 );
 
-// Ruta para obtener un nuevo token de acceso.
-router.post("/refresh-token", refreshAccessToken);
+// Ruta para eliminar un usuario por ID.
+router.delete("/users/:id", validateToken, deleteUserById);
 
 // Exporta el router para ser utilizado en otros archivos.
 export default router;
